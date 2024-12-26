@@ -1,3 +1,4 @@
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -29,12 +30,24 @@ kotlin {
     }
     
     sourceSets {
-        
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
+
+        val androidMain by getting {
+            dependencies {
+                api("androidx.activity:activity-compose:1.6.1")
+                api("androidx.appcompat:appcompat:1.6.1")
+                api("androidx.core:core-ktx:1.9.0")
+                implementation("io.ktor:ktor-client-android:2.3.1")
+            }
         }
         commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            @OptIn(ExperimentalComposeLibrary::class)
+            implementation(compose.components.resources)
+
             implementation("io.ktor:ktor-client-core:2.3.2")
             implementation("io.ktor:ktor-client-cio:2.3.2")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
@@ -80,6 +93,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.ui.tooling.preview.android)
     debugImplementation(compose.uiTooling)
 }
 
