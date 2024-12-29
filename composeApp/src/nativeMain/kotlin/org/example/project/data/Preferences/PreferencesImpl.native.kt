@@ -10,11 +10,11 @@ actual class PreferencesImpl  {
 //    actual override fun putString(key: String, value: String) {
 //        userDefaults.setObject(value, forKey = key)
 //    }
-     fun getString(key: String): String? {
+actual fun getString(key: String): String? {
         TODO("Not yet implemented")
     }
 
-     fun putString(key: String, value: String) {
+     actual fun putString(key: String, value: String) {
         TODO("Not yet implemented")
     }
 }
