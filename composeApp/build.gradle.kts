@@ -37,6 +37,8 @@ kotlin {
                 api("androidx.appcompat:appcompat:1.6.1")
                 api("androidx.core:core-ktx:1.9.0")
                 implementation("io.ktor:ktor-client-android:2.3.1")
+                implementation ("app.tinode:kotlinx-coroutines-preferences:0.4.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
             }
         }
         commonMain.dependencies {
@@ -47,6 +49,7 @@ kotlin {
             implementation(compose.ui)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+
 
             implementation("io.ktor:ktor-client-core:2.3.2")
             implementation("io.ktor:ktor-client-cio:2.3.2")
@@ -59,6 +62,7 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.navigation.compose)
+            implementation("io.insert-koin:koin-android:3.1.5")
 
 
         }
