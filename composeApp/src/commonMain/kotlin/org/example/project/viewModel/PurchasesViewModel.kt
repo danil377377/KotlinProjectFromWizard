@@ -5,19 +5,32 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.example.project.data.network.KtorClient
+import org.example.project.data.Preferences.PreferencesImpl
+import org.example.project.data.network.PurchasesDataSource
+import org.koin.core.component.KoinComponent
 
-class PurchasesViewModel() : ViewModel() {
-    private val _key = MutableStateFlow<String>("Привеееееееееет")
+
+class PurchasesViewModel(val ktorClient:PurchasesDataSource,val pref :PreferencesImpl) : ViewModel(), KoinComponent {
+    private val _key = MutableStateFlow<String>("")
     val key = _key.asStateFlow()
-    val ktorClient = KtorClient()
+    init {
+        getKey()
+    }
     fun getKey() {
         viewModelScope.launch(Dispatchers.IO) {
-            _key.value = ktorClient.getAutentificationKey()
+            val savedKey = pref.getString(AUTENTIFICATION_KEY)
+            if (!savedKey.isNullOrBlank()) {
+                _key.value = savedKey
+            } else {
+                val key =  ktorClient.getAutentificationKey()
+                pref.putString(AUTENTIFICATION_KEY, key)
+                _key.value = key
+            }
         }
+    }
+    companion object {
+        const val AUTENTIFICATION_KEY = "autentification_key"
     }
 }

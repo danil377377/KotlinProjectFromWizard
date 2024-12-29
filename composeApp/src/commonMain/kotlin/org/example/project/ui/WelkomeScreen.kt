@@ -14,19 +14,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import com.example.mykmpapplicationfromtemplate.viewModel.PurchasesViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun WelkomeScreen() {
+    val viewModel = koinViewModel<PurchasesViewModel>()
+    val text = viewModel.key.collectAsState()
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Добро пожаловать!", fontSize = 25.sp, modifier = Modifier.padding(top = 32.dp))
         Column(Modifier.fillMaxWidth().padding(top = 32.dp)) {
-            Text("Ваш ключ: 3223СР", fontSize = 20.sp, modifier = Modifier.background(Color.LightGray))
+            Text("Ваш ключ: ${text.value}", fontSize = 20.sp, modifier = Modifier.background(Color.LightGray))
             TextButton({}){ Text("Перейти к вашим спискам покупок") }
         }
         Column(Modifier.fillMaxWidth().padding(top = 16.dp)){
