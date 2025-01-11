@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.project.data.Preferences.PreferencesImpl
+import org.example.project.data.network.GetAllShopListsResponse
 import org.example.project.data.network.PurchasesDataSource
 import org.example.project.viewModel.WelkomeScreenAction
 import org.koin.core.component.KoinComponent
@@ -52,10 +53,11 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
         }
     }
 
+    var list = GetAllShopListsResponse(emptyList(), true)
     fun dispatch(action: WelkomeScreenAction){
         viewModelScope.launch {
             when(action){
-                WelkomeScreenAction.ContinueWithNewKey -> TODO()
+                WelkomeScreenAction.ContinueWithNewKey -> list = repository.getAllShopLists(insertedKey.value)
                 WelkomeScreenAction.ContinueWithSavedKey -> TODO()
                 is WelkomeScreenAction.KeyInputChanged -> {
                     _insertedKey.update { action.key }

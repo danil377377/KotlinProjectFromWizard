@@ -81,8 +81,7 @@ fun WelkomeScreen() {
                 })
             FilledTonalButton(
                 {
-//                    viewModel.dispatch(RegistrationAction.Submit)
-//                    onContinue()
+                    viewModel.dispatch(WelkomeScreenAction.ContinueWithNewKey)
                 },
                 colors = myButtonColors,
                 modifier = Modifier.fillMaxWidth(),
