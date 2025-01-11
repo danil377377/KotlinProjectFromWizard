@@ -1,3 +1,4 @@
 package org.example.project.data.network
+import org.example.project.data.network.Response
 
-data class GenerateKeyResponse(val data: String?, val errorMessage: String? = "error")
+data class GenerateKeyResponse(val data: String?): Response()

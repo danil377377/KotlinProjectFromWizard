@@ -9,7 +9,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration.Companion.seconds
-
+import org.example.project.data.network.Response
 
 class KtorClient : PurchasesDataSource {
     private val httpClient = HttpClient(CIO) {
@@ -19,17 +19,17 @@ class KtorClient : PurchasesDataSource {
     }
     private val BASE_URL = "https://cyberprot.ru/shopping/v2"
 
-    override suspend fun getAutentificationKey(): GenerateKeyResponse {
+    override suspend fun getAutentificationKey(): Response {
         return try {
             withTimeout(3.seconds) {
                 val response = httpClient.get("$BASE_URL/CreateTestKey?")
-                GenerateKeyResponse(response.body(), null)
+                response.body<GenerateKeyResponse>().apply { resultCode = 200 }
             }
         } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
-            GenerateKeyResponse(null,  "ERROR:Request timeout after 3 seconds")
+            Response().apply { resultCode = -3 }
         }
         catch (ex: UnresolvedAddressException){
-            GenerateKeyResponse(null,  "ERROR:No internet connection")
+            Response().apply { resultCode = -1 }
         }
     }
 

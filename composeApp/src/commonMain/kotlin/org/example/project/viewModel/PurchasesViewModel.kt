@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.project.data.Preferences.PreferencesImpl
+import org.example.project.data.network.GenerateKeyResponse
 import org.example.project.data.network.GetAllShopListsResponse
 import org.example.project.data.network.PurchasesDataSource
+import org.example.project.data.network.ShopList
 import org.example.project.viewModel.WelkomeScreenAction
 import org.koin.core.component.KoinComponent
 
@@ -38,14 +40,17 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
                 _key.value = savedKey
                 _isError.value = false
             } else {
-                val key =  repository.getAutentificationKey()
-                if(!key.data.isNullOrBlank()) {
+                val key =  repository.getAutentificationKey() as GenerateKeyResponse
+                if(key.resultCode==200&& !key.data.isNullOrBlank()) {
                     pref.putString(AUTENTIFICATION_KEY, key.data)
                     _key.value = key.data
                     _isError.value = false
                 } else{
-                    _key.value= key.errorMessage?:"err"
                     _isError.value = true
+                    when(key.resultCode){
+                        -1 -> _key.value = "ERROR:No internet connection"
+                        -3 -> _key.value = "ERROR:Request timeout after 3 seconds"
+                    }
 
                 }
             }
@@ -53,11 +58,11 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
         }
     }
 
-    var list = GetAllShopListsResponse(emptyList(), true)
+    var list = emptyList<ShopList>()
     fun dispatch(action: WelkomeScreenAction){
         viewModelScope.launch {
             when(action){
-                WelkomeScreenAction.ContinueWithNewKey -> list = repository.getAllShopLists(insertedKey.value)
+                WelkomeScreenAction.ContinueWithNewKey -> list = repository.getAllShopLists(insertedKey.value).shop_list
                 WelkomeScreenAction.ContinueWithSavedKey -> TODO()
                 is WelkomeScreenAction.KeyInputChanged -> {
                     _insertedKey.update { action.key }
