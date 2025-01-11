@@ -38,7 +38,8 @@ fun WelkomeScreen() {
     val newKey = viewModel.insertedKey.collectAsState()
     val isInputCorrect = viewModel.isInputCorrect.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
-    val isError = viewModel.isError.collectAsState()
+    val isGetKeyError = viewModel.isGetKeyError.collectAsState()
+    val isGetShopListsError = viewModel.isGetShopListsError.collectAsState()
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
@@ -54,7 +55,7 @@ fun WelkomeScreen() {
                     modifier = Modifier.background(Color.LightGray)
                 )
             }
-            if (isError.value) {
+            if (isGetKeyError.value) {
                 Button({ viewModel.getKey() }) {
                     Text("Попробовать ещё раз")
                 }
@@ -79,6 +80,9 @@ fun WelkomeScreen() {
                         "Введите 6-ти значный ключ"
                     )
                 })
+            if(!isGetShopListsError.value.isBlank()){
+                Text(isGetShopListsError.value, color = Color.Red)
+            }
             FilledTonalButton(
                 {
                     viewModel.dispatch(WelkomeScreenAction.ContinueWithNewKey)

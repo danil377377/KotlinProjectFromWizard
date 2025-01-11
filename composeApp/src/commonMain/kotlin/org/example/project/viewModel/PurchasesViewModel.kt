@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import org.example.project.data.Preferences.PreferencesImpl
 import org.example.project.data.network.GenerateKeyResponse
 import org.example.project.data.network.GetAllShopListsResponse
-import org.example.project.data.network.PurchasesDataSource
 import org.example.project.data.network.ShopList
 import org.example.project.viewModel.WelkomeScreenAction
 import org.koin.core.component.KoinComponent
@@ -27,8 +26,12 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
     val isInputCorrect = _isInpurCorrect.asStateFlow()
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
-    private val _isError = MutableStateFlow(true)
-    val isError = _isError.asStateFlow()
+    private val _isGetKeyError = MutableStateFlow(true)
+    val isGetKeyError = _isGetKeyError.asStateFlow()
+    private val _isGetShopListsError = MutableStateFlow<String>("")
+    val isGetShopListsError = _isGetShopListsError.asStateFlow()
+    private val _shopLists = MutableStateFlow<List<ShopList>>(emptyList())
+    val shopList=_shopLists.asStateFlow()
     init {
         getKey()
     }
@@ -38,31 +41,41 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
             val savedKey = pref.getString(AUTENTIFICATION_KEY)
             if (!savedKey.isNullOrBlank()) {
                 _key.value = savedKey
-                _isError.value = false
+                _isGetKeyError.value = false
             } else {
                 val key =  repository.getAutentificationKey() as GenerateKeyResponse
                 if(key.resultCode==200&& !key.data.isNullOrBlank()) {
                     pref.putString(AUTENTIFICATION_KEY, key.data)
                     _key.value = key.data
-                    _isError.value = false
+                    _isGetKeyError.value = false
                 } else{
-                    _isError.value = true
+                    _isGetKeyError.value = true
                     when(key.resultCode){
                         -1 -> _key.value = "ERROR:No internet connection"
                         -3 -> _key.value = "ERROR:Request timeout after 3 seconds"
                     }
-
                 }
             }
             _isLoading.value = false
         }
     }
 
-    var list = emptyList<ShopList>()
     fun dispatch(action: WelkomeScreenAction){
         viewModelScope.launch {
             when(action){
-                WelkomeScreenAction.ContinueWithNewKey -> list = repository.getAllShopLists(insertedKey.value).shop_list
+                WelkomeScreenAction.ContinueWithNewKey -> {
+                  val shopLists = repository.getAllShopLists(insertedKey.value)
+                    if(shopLists.resultCode==200) {
+                        _shopLists.value = (shopLists as GetAllShopListsResponse).shop_list
+                        _isGetShopListsError.value = ""
+                    } else{
+                        _isGetShopListsError.value = when(shopLists.resultCode){
+                            -1 -> "ERROR:No internet connection"
+                            -3 -> "ERROR:Request timeout after 3 seconds"
+                            else ->""
+                        }
+                    }
+                }
                 WelkomeScreenAction.ContinueWithSavedKey -> TODO()
                 is WelkomeScreenAction.KeyInputChanged -> {
                     _insertedKey.update { action.key }

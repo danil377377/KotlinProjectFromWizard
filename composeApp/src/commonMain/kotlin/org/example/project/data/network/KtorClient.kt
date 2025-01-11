@@ -33,7 +33,18 @@ class KtorClient : PurchasesDataSource {
         }
     }
 
-    override suspend fun getAllShopLists(key: String): GetAllShopListsResponse {
-        return httpClient.get("$BASE_URL/GetAllMyShopLists?key=$key").body()
+    override suspend fun getAllShopLists(key: String): Response {
+        return try {
+            withTimeout(3.seconds) {
+                val response = httpClient.get("$BASE_URL/GetAllMyShopLists?key=$key")
+                response.body<GetAllShopListsResponse>().apply { resultCode = 200 }
+            }
+        } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
+            Response().apply { resultCode = -3 }
+        }
+        catch (ex: UnresolvedAddressException){
+            Response().apply { resultCode = -1 }
+        }
+
     }
 }

@@ -7,7 +7,7 @@ class PurchasesRepositoryImpl(val dataSource: PurchasesDataSource): PurchasesRep
         return dataSource.getAutentificationKey()
     }
 
-    override suspend fun getAllShopLists(key: String): GetAllShopListsResponse {
+    override suspend fun getAllShopLists(key: String): Response {
         return dataSource.getAllShopLists(key)
     }
 

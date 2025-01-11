@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data class GetAllShopListsResponse(
     val shop_list: List<ShopList>,
     val success: Boolean
-)
+):Response()
