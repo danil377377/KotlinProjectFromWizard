@@ -21,31 +21,26 @@ import org.jetbrains.compose.resources.painterResource
 
 import kotlinprojectfromwizard.composeapp.generated.resources.Res
 import kotlinprojectfromwizard.composeapp.generated.resources.compose_multiplatform
+import org.example.project.ui.ShopListsScreen
 import org.example.project.ui.WelkomeScreen
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun App() {
+    val navController = rememberNavController()
     MaterialTheme {
         KoinContext {
             NavHost(
-                navController = rememberNavController(),
-                startDestination = "home"
+                navController = navController,
+                startDestination = "welkome"
             ) {
-                composable(route = "home") {
-//                    val viewModel = koinViewModel<PurchasesViewModel>()
-//                    val text = viewModel.key.collectAsState()
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxSize(),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//                        TextButton(onClick = {viewModel.getKey()}){
-//                           Text(text = text.value)
-//                        }
-//                    }
-                    WelkomeScreen()
+                composable(route = "welkome") {
+                    WelkomeScreen(navController)
+                }
+                composable(route = "shoplists/{key}") {stackEntry ->
+                    val key = stackEntry.arguments?.getString("key")
+                    ShopListsScreen(key?:"Ошибка")
                 }
             }
         }

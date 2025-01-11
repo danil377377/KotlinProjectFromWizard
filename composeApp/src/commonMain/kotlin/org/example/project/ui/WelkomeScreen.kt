@@ -21,12 +21,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.mykmpapplicationfromtemplate.viewModel.PurchasesViewModel
 import org.example.project.viewModel.WelkomeScreenAction
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun WelkomeScreen() {
+fun WelkomeScreen(navController: NavController) {
     val myButtonColors = ButtonDefaults.filledTonalButtonColors(
         containerColor = Color.Red,
         contentColor = Color.Red,
@@ -62,8 +63,7 @@ fun WelkomeScreen() {
             } else {
                 FilledTonalButton(
                     {
-//                    viewModel.dispatch(RegistrationAction.Submit)
-//                    onContinue()
+navController.navigate("shoplists/${savedKey.value}")
                     },
                     colors = myButtonColors,
                     modifier = Modifier.fillMaxWidth(),
