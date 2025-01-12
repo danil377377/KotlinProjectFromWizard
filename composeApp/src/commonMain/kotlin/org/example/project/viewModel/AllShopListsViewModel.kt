@@ -36,7 +36,8 @@ class AllShopListsViewModel(
                 }
 
                 is AllShopListsAction.CreateShoplist -> {
-                    val response = allShoplistsRepository.createShoplist(action.key, insertedName.value)
+                    val response =
+                        allShoplistsRepository.createShoplist(action.key, insertedName.value)
                     if (response.resultCode == 200) {
                         _isGetShopListsError.value = ""
                     } else {
@@ -47,8 +48,10 @@ class AllShopListsViewModel(
                         }
                     }
                     getShoplists(action.key)
-                    _insertedName.value=""
+                    _insertedName.value = ""
                 }
+
+                is AllShopListsAction.RemoveShoplist -> removeShoplist(action.id, action.key)
             }
         }
     }
@@ -74,7 +77,7 @@ class AllShopListsViewModel(
     fun observeShoplists(insertedKey: String) {
         viewModelScope.launch {
             getShopListsFlow(insertedKey)
-                .collect{
+                .collect {
                     _shopLists.value = it
                     _isLoading.value = false
                 }
@@ -97,7 +100,22 @@ class AllShopListsViewModel(
             }
             delay(5000)
         }
+    }.onStart { _isLoading.value = true }
+
+    fun removeShoplist(id:String, key:String){
+        viewModelScope.launch {
+            _isLoading.value = true
+            val shopLists = allShoplistsRepository.removeShoplist(id)
+            if (shopLists.resultCode != 200) {
+                _isGetShopListsError.value = when (shopLists.resultCode) {
+                    -1 -> "ERROR:No internet connection"
+                    -3 -> "ERROR:Request timeout after 3 seconds"
+                    else -> ""
+                }
+            }
+            _isLoading.value = false
+            getShoplists(key)
+        }
     }
-        .onStart { _isLoading.value = true }
 }
 

@@ -1,6 +1,7 @@
 package org.example.project.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -20,6 +22,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.example.project.viewModel.AllShopListsAction
 import org.example.project.viewModel.AllShopListsViewModel
-import org.example.project.viewModel.WelcomeScreenAction
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -38,9 +43,18 @@ fun ShopListsScreen(key:String) {
     val isLoading=viewModel.isLoading.collectAsState()
     val nameInput = viewModel.insertedName.collectAsState()
 
-    val myButtonColors = ButtonDefaults.filledTonalButtonColors(
+    var showDialog by remember { mutableStateOf(false) }
+    var chosenShoplist by remember { mutableStateOf("") }
+
+    val addButtonColors = ButtonDefaults.filledTonalButtonColors(
         containerColor = Color.Blue,
         contentColor = Color.Blue,
+        disabledContainerColor = Color.LightGray,
+        disabledContentColor = Color.White
+    )
+    val removeButtonColors = ButtonDefaults.filledTonalButtonColors(
+        containerColor = Color.Red,
+        contentColor = Color.Red,
         disabledContainerColor = Color.LightGray,
         disabledContentColor = Color.White
     )
@@ -64,7 +78,7 @@ fun ShopListsScreen(key:String) {
             {
 viewModel.dispatch(AllShopListsAction.CreateShoplist(key))
             },
-            colors = myButtonColors,
+            colors = addButtonColors,
             modifier = Modifier.fillMaxWidth(),
             enabled = !nameInput.value.isBlank()
         ) { Text("Добавить список покупок") }
@@ -79,12 +93,48 @@ viewModel.dispatch(AllShopListsAction.CreateShoplist(key))
                         Text(it.created, color = Color.LightGray)}
 
                     }
-                    Button({}) {
-                        Text("Перейти")
+                    Box(Modifier.fillMaxWidth()) {
+                        Row(Modifier.align(Alignment.CenterStart)) {
+                            Button(
+                                onClick = {},
+                            ) {
+                                Text("Перейти")
+                            }
+                        }
+                        Row(Modifier.align(Alignment.CenterEnd)) {
+                            FilledTonalButton(
+                                onClick = {chosenShoplist = it.id.toString()
+                                          showDialog = true},
+                                colors = removeButtonColors
+                            ) {
+                                Text("Удалить")
+                            }
+                        }
                     }
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }
             } else Text(isError.value, color = Color.Red)
         }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Подтверждение удаления") },
+            text = { Text("Вы действительно хотите удалить список покупок?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.dispatch(AllShopListsAction.RemoveShoplist(chosenShoplist, key))
+                    showDialog = false
+                }) {
+                    Text("Удалить")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Отмена")
+                }
+            }
+        )
     }
 }

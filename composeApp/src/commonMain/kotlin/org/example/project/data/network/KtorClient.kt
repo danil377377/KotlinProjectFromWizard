@@ -12,6 +12,7 @@ import org.example.project.data.network.model.CreateShoplistsResponse
 import kotlin.time.Duration.Companion.seconds
 import org.example.project.data.network.model.GenerateKeyResponse
 import org.example.project.data.network.model.GetAllShopListsResponse
+import org.example.project.data.network.model.RemoveShoplistResponse
 import org.example.project.data.network.model.Response
 
 class KtorClient : PurchasesDataSource {
@@ -57,6 +58,20 @@ class KtorClient : PurchasesDataSource {
             withTimeout(3.seconds) {
                 val response = httpClient.get("$BASE_URL/CreateShoppingList?key=$key&name=${name.replace(Regex("\\s"), "%20")}")
                 response.body<CreateShoplistsResponse>().apply { resultCode = 200 }
+            }
+        } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
+            Response().apply { resultCode = -3 }
+        }
+        catch (ex: UnresolvedAddressException){
+            Response().apply { resultCode = -1 }
+        }
+    }
+
+    override suspend fun removeShoplist(id: String): Response {
+        return try {
+            withTimeout(3.seconds) {
+                val response = httpClient.get("$BASE_URL/RemoveShoppingList?list_id=$id")
+                response.body<RemoveShoplistResponse>().apply { resultCode = 200 }
             }
         } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
             Response().apply { resultCode = -3 }
