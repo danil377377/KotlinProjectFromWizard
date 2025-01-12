@@ -2,7 +2,7 @@ package com.example.mykmpapplicationfromtemplate.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mykmpapplicationfromtemplate.domain.PurchasesRepository
+import com.example.mykmpapplicationfromtemplate.domain.WelcomeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,14 +10,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.project.data.Preferences.PreferencesImpl
-import org.example.project.data.network.GenerateKeyResponse
-import org.example.project.data.network.GetAllShopListsResponse
-import org.example.project.data.network.ShopList
-import org.example.project.viewModel.WelkomeScreenAction
+import org.example.project.data.network.model.GenerateKeyResponse
+import org.example.project.viewModel.WelcomeScreenAction
 import org.koin.core.component.KoinComponent
 
 
-class PurchasesViewModel(val repository: PurchasesRepository,val pref :PreferencesImpl) : ViewModel(), KoinComponent {
+class WelcomeViewModel(val repository: WelcomeRepository, val pref :PreferencesImpl) : ViewModel(), KoinComponent {
     private val _key = MutableStateFlow<String>("")
     val key = _key.asStateFlow()
     private val _insertedKey = MutableStateFlow<String>("")
@@ -30,8 +28,6 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
     val isGetKeyError = _isGetKeyError.asStateFlow()
     private val _isGetShopListsError = MutableStateFlow<String>("")
     val isGetShopListsError = _isGetShopListsError.asStateFlow()
-    private val _shopLists = MutableStateFlow<List<ShopList>>(emptyList())
-    val shopList=_shopLists.asStateFlow()
     init {
         getKey()
     }
@@ -60,13 +56,12 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
         }
     }
 
-    fun dispatch(action: WelkomeScreenAction){
+    fun dispatch(action: WelcomeScreenAction){
         viewModelScope.launch {
             when(action){
-                WelkomeScreenAction.ContinueWithNewKey -> {
+                WelcomeScreenAction.ContinueWithNewKey -> {
                   val shopLists = repository.getAllShopLists(insertedKey.value)
                     if(shopLists.resultCode==200) {
-                        _shopLists.value = (shopLists as GetAllShopListsResponse).shop_list
                         _isGetShopListsError.value = ""
                     } else{
                         _isGetShopListsError.value = when(shopLists.resultCode){
@@ -76,8 +71,8 @@ class PurchasesViewModel(val repository: PurchasesRepository,val pref :Preferenc
                         }
                     }
                 }
-                WelkomeScreenAction.ContinueWithSavedKey -> TODO()
-                is WelkomeScreenAction.KeyInputChanged -> {
+                WelcomeScreenAction.ContinueWithSavedKey -> TODO()
+                is WelcomeScreenAction.KeyInputChanged -> {
                     _insertedKey.update { action.key }
                     if(insertedKey.value.length == 6){
                         _isInpurCorrect.update{true}

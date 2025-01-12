@@ -1,8 +1,9 @@
 package org.example.project.data.network
 
-import com.example.mykmpapplicationfromtemplate.domain.PurchasesRepository
+import com.example.mykmpapplicationfromtemplate.domain.WelcomeRepository
+import org.example.project.data.network.model.Response
 
-class PurchasesRepositoryImpl(val dataSource: PurchasesDataSource): PurchasesRepository {
+class WelcomeRepositoryImpl(val dataSource: PurchasesDataSource): WelcomeRepository {
     override suspend fun getAutentificationKey(): Response {
         return dataSource.getAutentificationKey()
     }

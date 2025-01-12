@@ -8,8 +8,11 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.withTimeout
+import org.example.project.data.network.model.CreateShoplistsResponse
 import kotlin.time.Duration.Companion.seconds
-import org.example.project.data.network.Response
+import org.example.project.data.network.model.GenerateKeyResponse
+import org.example.project.data.network.model.GetAllShopListsResponse
+import org.example.project.data.network.model.Response
 
 class KtorClient : PurchasesDataSource {
     private val httpClient = HttpClient(CIO) {
@@ -46,5 +49,20 @@ class KtorClient : PurchasesDataSource {
             Response().apply { resultCode = -1 }
         }
 
+    }
+
+    override suspend fun createShoplist(key:String, name: String): Response {
+        return try {
+
+            withTimeout(3.seconds) {
+                val response = httpClient.get("$BASE_URL/CreateShoppingList?key=$key&name=${name.replace(Regex("\\s"), "%20")}")
+                response.body<CreateShoplistsResponse>().apply { resultCode = 200 }
+            }
+        } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
+            Response().apply { resultCode = -3 }
+        }
+        catch (ex: UnresolvedAddressException){
+            Response().apply { resultCode = -1 }
+        }
     }
 }
