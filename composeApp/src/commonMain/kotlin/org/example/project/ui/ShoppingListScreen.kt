@@ -1,5 +1,6 @@
 package org.example.project.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -29,6 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.example.project.viewModel.ShoppingListAction
@@ -36,15 +44,17 @@ import org.example.project.viewModel.ShoppingListViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ShoppingListScreen (listId:String, listName:String) {
+fun ShoppingListScreen(listId: String, listName: String) {
     val viewModel = koinViewModel<ShoppingListViewModel>()
     val items = viewModel.items.collectAsState()
     val isError = viewModel.isGetItemsError.collectAsState()
-    val isLoading=viewModel.isLoading.collectAsState()
+    val isLoading = viewModel.isLoading.collectAsState()
     val nameInput = viewModel.insertedName.collectAsState()
+    val quntityInput = viewModel.insertedQuantity.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
     var chosenItem by remember { mutableStateOf("") }
+
 
     val addButtonColors = ButtonDefaults.filledTonalButtonColors(
         containerColor = Color.Blue,
@@ -62,8 +72,8 @@ fun ShoppingListScreen (listId:String, listName:String) {
         viewModel.observeItems(listId)
     }
     Column(
-    Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-    .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(listName, fontSize = 25.sp, modifier = Modifier.padding(top = 32.dp))
         OutlinedTextField(
@@ -73,46 +83,88 @@ fun ShoppingListScreen (listId:String, listName:String) {
                 Text(
                     "Введите название покупки на английском"
                 )
-            })
+            },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next,
+            )
+        )
+        OutlinedTextField(
+            modifier = Modifier.padding(8.dp),
+            value = quntityInput.value,
+            onValueChange = { viewModel.dispatch(ShoppingListAction.QuantityInputChanged(it)) },
+            placeholder = {
+                Text(
+                    "Введите количество товара"
+                )
+            }, keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done,
+            )
+        )
         FilledTonalButton(
             {
-                viewModel.dispatch(ShoppingListAction.AddToShoppingList(listId, nameInput.value, "1"))
+                viewModel.dispatch(
+                    ShoppingListAction.AddToShoppingList(
+                        listId,
+                        nameInput.value,
+                        quntityInput.value
+                    )
+                )
             },
             colors = addButtonColors,
             modifier = Modifier.fillMaxWidth(),
-            enabled = !nameInput.value.isBlank()
+            enabled = !nameInput.value.isBlank() && !quntityInput.value.isBlank() && quntityInput.value.toDoubleOrNull() != null
         ) { Text("Добавить покупку") }
         if (isLoading.value) {
             CircularProgressIndicator(modifier = Modifier.size(50.dp))
         } else {
             if (isError.value.isBlank()) {
                 items.value.forEach {
-                    Row(modifier = Modifier.padding(16.dp).fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(it.name, fontSize = 20.sp)
-                            Text(it.created, color = Color.LightGray)
-                        }
+                    val color = if (it.is_crossed) Color.LightGray else Color(0xFFADD8E6)
+                    Box(modifier = Modifier.padding(vertical = 8.dp)) {
+                        Column(Modifier.background(color)) {
+                            Row(
+                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(modifier = Modifier.weight(1f)) {
+                                    Text(it.name, fontSize = 28.sp, modifier = Modifier.weight(1f),
+                                        style = if (it.is_crossed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default)
+                                    Text(
+                                        "Количество:\n${it.created}",
+                                        color = Color.Gray,
+                                        fontSize = 22.sp,
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    )
+                                }
 
-                    }
-                    Box(Modifier.fillMaxWidth()) {
-                        Row(Modifier.align(Alignment.CenterStart)) {
-                            Button(
-                                onClick = {},
-                            ) {
-                                Text("Перейти")
                             }
-                        }
-                        Row(Modifier.align(Alignment.CenterEnd)) {
-                            FilledTonalButton(
-                                onClick = {chosenItem = it.id.toString()
-                                    showDialog = true},
-                                colors = removeButtonColors
-                            ) {
-                                Text("Удалить")
+                            Box(Modifier.fillMaxWidth()) {
+                                Row(Modifier.align(Alignment.CenterStart)) {
+                                    Button(
+                                        onClick = {},
+                                    ) {
+                                        Text("Вычеркнуть/Восстановить")
+                                    }
+                                }
+                                Row(Modifier.align(Alignment.CenterEnd)) {
+                                    FilledTonalButton(
+                                        onClick = {
+                                            chosenItem = it.id.toString()
+                                            showDialog = true
+                                        },
+                                        colors = removeButtonColors
+                                    ) {
+                                        Text("Удалить")
+                                    }
+                                }
                             }
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
                         }
                     }
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }
             } else Text(isError.value, color = Color.Red)
         }
@@ -122,10 +174,15 @@ fun ShoppingListScreen (listId:String, listName:String) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text("Подтверждение удаления") },
-            text = { Text("Вы действительно хотите удалить список покупок?") },
+            text = { Text("Вы действительно хотите удалить покупку?") },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.dispatch(ShoppingListAction.RemoveFromShoppingList(listId, chosenItem))
+                    viewModel.dispatch(
+                        ShoppingListAction.RemoveFromShoppingList(
+                            listId,
+                            chosenItem
+                        )
+                    )
                     showDialog = false
                 }) {
                     Text("Удалить")

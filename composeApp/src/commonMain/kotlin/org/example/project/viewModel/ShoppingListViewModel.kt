@@ -24,6 +24,8 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
     val isLoading = _isLoading.asStateFlow()
     private val _insertedName = MutableStateFlow<String>("")
     val insertedName = _insertedName.asStateFlow()
+    private val _insertedQuantity = MutableStateFlow<String>("")
+    val insertedQuantity = _insertedQuantity.asStateFlow()
 
     fun dispatch(action: ShoppingListAction) {
         viewModelScope.launch {
@@ -33,6 +35,9 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
                 }
                 is ShoppingListAction.AddToShoppingList -> addToShoplist(action.listId,action.name,action.n)
                 is ShoppingListAction.RemoveFromShoppingList -> removeFromShoplist(action.listId, action.itemId)
+                is ShoppingListAction.QuantityInputChanged -> {
+                _insertedQuantity.update { action.quantity }
+            }
             }
         }
     }
