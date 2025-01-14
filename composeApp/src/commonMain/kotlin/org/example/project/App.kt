@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 import org.example.project.ui.ShopListsScreen
+import org.example.project.ui.ShoppingListScreen
 import org.example.project.ui.WelcomeScreen
 
 import org.koin.compose.KoinContext
@@ -25,7 +26,12 @@ fun App() {
                 }
                 composable(route = "allshoplists/{key}") {stackEntry ->
                     val key = stackEntry.arguments?.getString("key")
-                    ShopListsScreen(key?:"Ошибка")
+                    ShopListsScreen(key?:"Ошибка", navController)
+                }
+                composable(route = "shoppinglist/{listId}/{listName}"){stackEntry ->
+                    val listId = stackEntry.arguments?.getString("listId")
+                    val listName = stackEntry.arguments?.getString("listName")
+                    ShoppingListScreen(listId?:"Ошибка", listName?:"Ошибка")
                 }
             }
         }

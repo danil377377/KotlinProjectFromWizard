@@ -6,14 +6,13 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.network.UnresolvedAddressException
-import kotlinx.coroutines.withTimeout
+import org.example.project.data.network.model.AddToShoplistResponse
 import org.example.project.data.network.model.CreateShoplistsResponse
-import kotlin.time.Duration.Companion.seconds
 import org.example.project.data.network.model.GenerateKeyResponse
 import org.example.project.data.network.model.GetAllShopListsResponse
 import org.example.project.data.network.model.RemoveShoplistResponse
 import org.example.project.data.network.model.Response
+import org.example.project.data.network.model.ShoppingListResponse
 
 class KtorClient : PurchasesDataSource {
     private val httpClient = HttpClient(CIO) {
@@ -24,60 +23,49 @@ class KtorClient : PurchasesDataSource {
     private val BASE_URL = "https://cyberprot.ru/shopping/v2"
 
     override suspend fun getAutentificationKey(): Response {
-        return try {
-            withTimeout(3.seconds) {
-                val response = httpClient.get("$BASE_URL/CreateTestKey?")
-                response.body<GenerateKeyResponse>().apply { resultCode = 200 }
-            }
-        } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
-            Response().apply { resultCode = -3 }
-        }
-        catch (ex: UnresolvedAddressException){
-            Response().apply { resultCode = -1 }
-        }
+        return safeApiCall({
+            val response = httpClient.get("$BASE_URL/CreateTestKey?")
+            response.body<GenerateKeyResponse>().apply { resultCode = 200 }
+        })
     }
 
     override suspend fun getAllShopLists(key: String): Response {
-        return try {
-            withTimeout(3.seconds) {
-                val response = httpClient.get("$BASE_URL/GetAllMyShopLists?key=$key")
-                response.body<GetAllShopListsResponse>().apply { resultCode = 200 }
-            }
-        } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
-            Response().apply { resultCode = -3 }
-        }
-        catch (ex: UnresolvedAddressException){
-            Response().apply { resultCode = -1 }
-        }
-
+        return safeApiCall({
+            val response = httpClient.get("$BASE_URL/GetAllMyShopLists?key=$key")
+            response.body<GetAllShopListsResponse>().apply { resultCode = 200 }
+        })
     }
 
-    override suspend fun createShoplist(key:String, name: String): Response {
-        return try {
-
-            withTimeout(3.seconds) {
-                val response = httpClient.get("$BASE_URL/CreateShoppingList?key=$key&name=${name.replace(Regex("\\s"), "%20")}")
-                response.body<CreateShoplistsResponse>().apply { resultCode = 200 }
-            }
-        } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
-            Response().apply { resultCode = -3 }
-        }
-        catch (ex: UnresolvedAddressException){
-            Response().apply { resultCode = -1 }
-        }
+    override suspend fun createShoplist(key: String, name: String): Response {
+        return safeApiCall({
+            val response = httpClient.get(
+                "$BASE_URL/CreateShoppingList?key=$key&name=${
+                    name.replace(
+                        Regex("\\s"), "%20"
+                    )
+                }"
+            )
+            response.body<CreateShoplistsResponse>().apply { resultCode = 200 }
+        })
     }
 
     override suspend fun removeShoplist(id: String): Response {
-        return try {
-            withTimeout(3.seconds) {
-                val response = httpClient.get("$BASE_URL/RemoveShoppingList?list_id=$id")
-                response.body<RemoveShoplistResponse>().apply { resultCode = 200 }
-            }
-        } catch (ex: kotlinx.coroutines.TimeoutCancellationException) {
-            Response().apply { resultCode = -3 }
-        }
-        catch (ex: UnresolvedAddressException){
-            Response().apply { resultCode = -1 }
-        }
+        return safeApiCall({
+            val response = httpClient.get("$BASE_URL/RemoveShoppingList?list_id=$id")
+            response.body<RemoveShoplistResponse>().apply { resultCode = 200 }
+        })
+    }
+
+    override suspend fun getShoppingList(listId: String): Response {
+        return safeApiCall({
+            val response = httpClient.get("$BASE_URL/GetShoppingList?list_id=$listId")
+            response.body<ShoppingListResponse>().apply { resultCode = 200 }
+        })
+    }
+    override suspend fun addToShoppingList(listId: String,name: String, n:String): Response {
+        return safeApiCall({
+            val response = httpClient.get("$BASE_URL/AddToShoppingList?id=$listId&value=$name&n=$n")
+            response.body<AddToShoplistResponse>().apply { resultCode = 200 }
+        })
     }
 }

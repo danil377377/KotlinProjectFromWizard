@@ -6,9 +6,12 @@ import com.example.mykmpapplicationfromtemplate.viewModel.WelcomeViewModel
 import org.example.project.data.network.AllShoplistsRepositoryImpl
 import org.example.project.data.network.KtorClient
 import org.example.project.data.network.PurchasesDataSource
+import org.example.project.data.network.ShoppingListRepositoryImpl
 import org.example.project.data.network.WelcomeRepositoryImpl
 import org.example.project.domain.AllShoplistsRepository
+import org.example.project.domain.ShoppingListRepository
 import org.example.project.viewModel.AllShopListsViewModel
+import org.example.project.viewModel.ShoppingListViewModel
 import org.koin.compose.viewmodel.dsl.viewModelOf
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
@@ -20,7 +23,9 @@ expect val platformModule: Module
 val sharedModule = module {
     singleOf(::WelcomeRepositoryImpl).bind<WelcomeRepository>()
     singleOf(::AllShoplistsRepositoryImpl).bind<AllShoplistsRepository>()
+    singleOf(::ShoppingListRepositoryImpl).bind<ShoppingListRepository>()
     singleOf(::KtorClient).bind<PurchasesDataSource>()
     viewModelOf(::WelcomeViewModel)
     viewModelOf(::AllShopListsViewModel)
+    viewModelOf(::ShoppingListViewModel)
 }

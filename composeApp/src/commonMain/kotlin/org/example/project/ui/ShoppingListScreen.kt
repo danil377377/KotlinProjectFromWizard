@@ -31,16 +31,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import org.example.project.viewModel.AllShopListsAction
 import org.example.project.viewModel.AllShopListsViewModel
+import org.example.project.viewModel.ShoppingListAction
+import org.example.project.viewModel.ShoppingListViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ShopListsScreen(key:String, navController: NavController) {
-    val viewModel = koinViewModel<AllShopListsViewModel>()
-    val shoplists = viewModel.shopLists.collectAsState()
-    val isError = viewModel.isGetShopListsError.collectAsState()
+fun ShoppingListScreen (listId:String, listName:String) {
+    val viewModel = koinViewModel<ShoppingListViewModel>()
+    val items = viewModel.items.collectAsState()
+    val isError = viewModel.isGetItemsError.collectAsState()
     val isLoading=viewModel.isLoading.collectAsState()
     val nameInput = viewModel.insertedName.collectAsState()
 
@@ -59,45 +60,46 @@ fun ShopListsScreen(key:String, navController: NavController) {
         disabledContainerColor = Color.LightGray,
         disabledContentColor = Color.White
     )
-    LaunchedEffect(key) {
-        viewModel.observeShoplists(key)
+    LaunchedEffect(listId) {
+        viewModel.observeItems(listId)
     }
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-            .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
+    Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+    .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Ключ: $key", fontSize = 25.sp, modifier = Modifier.padding(top = 32.dp))
+        Text(listName, fontSize = 25.sp, modifier = Modifier.padding(top = 32.dp))
         OutlinedTextField(
             value = nameInput.value,
-            onValueChange = { viewModel.dispatch(AllShopListsAction.NameInputChanged(it)) },
+            onValueChange = { viewModel.dispatch(ShoppingListAction.NameInputChanged(it)) },
             placeholder = {
                 Text(
-                    "Введите имя списка на английском"
+                    "Введите название покупки на английском"
                 )
             })
         FilledTonalButton(
             {
-viewModel.dispatch(AllShopListsAction.CreateShoplist(key))
+                viewModel.dispatch(ShoppingListAction.AddToShoppingList(listId, nameInput.value, "1"))
             },
             colors = addButtonColors,
             modifier = Modifier.fillMaxWidth(),
             enabled = !nameInput.value.isBlank()
-        ) { Text("Добавить список покупок") }
+        ) { Text("Добавить покупку") }
         if (isLoading.value) {
             CircularProgressIndicator(modifier = Modifier.size(50.dp))
         } else {
             if (isError.value.isBlank()) {
-                shoplists.value.forEach {
+                items.value.forEach {
                     Row(modifier = Modifier.padding(16.dp).fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween ) {
                         Column(modifier = Modifier.weight(1f)) {
-                        Text(it.name, fontSize = 20.sp)
-                        Text(it.created, color = Color.LightGray)}
+                            Text(it.name, fontSize = 20.sp)
+                            Text(it.created, color = Color.LightGray)
+                        }
 
                     }
                     Box(Modifier.fillMaxWidth()) {
                         Row(Modifier.align(Alignment.CenterStart)) {
                             Button(
-                                onClick = {navController.navigate("shoppinglist/${it.id}/${it.name}")},
+                                onClick = {},
                             ) {
                                 Text("Перейти")
                             }
@@ -105,7 +107,7 @@ viewModel.dispatch(AllShopListsAction.CreateShoplist(key))
                         Row(Modifier.align(Alignment.CenterEnd)) {
                             FilledTonalButton(
                                 onClick = {chosenShoplist = it.id.toString()
-                                          showDialog = true},
+                                    showDialog = true},
                                 colors = removeButtonColors
                             ) {
                                 Text("Удалить")
@@ -125,7 +127,7 @@ viewModel.dispatch(AllShopListsAction.CreateShoplist(key))
             text = { Text("Вы действительно хотите удалить список покупок?") },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.dispatch(AllShopListsAction.RemoveShoplist(chosenShoplist, key))
+//                    viewModel.dispatch(AllShopListsAction.RemoveShoplist(chosenShoplist, key))
                     showDialog = false
                 }) {
                     Text("Удалить")
