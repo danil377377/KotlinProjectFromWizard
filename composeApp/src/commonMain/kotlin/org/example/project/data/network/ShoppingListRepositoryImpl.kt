@@ -15,4 +15,8 @@ class ShoppingListRepositoryImpl(val dataSource: PurchasesDataSource):ShoppingLi
     override suspend fun removeFromList(listId: String, itemId: String): Response {
         return dataSource.removeFromList(listId, itemId)
     }
+
+    override suspend fun crossItem(itemId: String): Response {
+        return dataSource.crossItem(itemId)
+    }
 }

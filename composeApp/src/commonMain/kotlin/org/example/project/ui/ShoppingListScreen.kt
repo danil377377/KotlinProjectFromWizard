@@ -131,8 +131,10 @@ fun ShoppingListScreen(listId: String, listName: String) {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(modifier = Modifier.weight(1f)) {
-                                    Text(it.name, fontSize = 28.sp, modifier = Modifier.weight(1f),
-                                        style = if (it.is_crossed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default)
+                                    Text(
+                                        it.name, fontSize = 28.sp, modifier = Modifier.weight(1f),
+                                        style = if (it.is_crossed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+                                    )
                                     Text(
                                         "Количество:\n${it.created}",
                                         color = Color.Gray,
@@ -145,7 +147,13 @@ fun ShoppingListScreen(listId: String, listName: String) {
                             Box(Modifier.fillMaxWidth()) {
                                 Row(Modifier.align(Alignment.CenterStart)) {
                                     Button(
-                                        onClick = {},
+                                        onClick = {
+                                            viewModel.dispatch(
+                                                ShoppingListAction.CrossItem(
+                                                    it.id.toString(), listId
+                                                )
+                                            )
+                                        },
                                     ) {
                                         Text("Вычеркнуть/Восстановить")
                                     }

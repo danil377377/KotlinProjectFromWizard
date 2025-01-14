@@ -8,6 +8,7 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import org.example.project.data.network.model.AddToShoplistResponse
 import org.example.project.data.network.model.CreateShoplistsResponse
+import org.example.project.data.network.model.CrossItemResponse
 import org.example.project.data.network.model.GenerateKeyResponse
 import org.example.project.data.network.model.GetAllShopListsResponse
 import org.example.project.data.network.model.RemoveFromListResponse
@@ -73,6 +74,12 @@ class KtorClient : PurchasesDataSource {
         return safeApiCall({
             val response = httpClient.get("$BASE_URL/RemoveFromList?list_id=$listId&item_id=$itemId")
             response.body<RemoveFromListResponse>().apply { resultCode = 200 }
+        })
+    }
+    override suspend fun crossItem(itemId:String): Response {
+        return safeApiCall({
+            val response = httpClient.get("$BASE_URL/CrossItOff?id=$itemId")
+            response.body<CrossItemResponse>().apply { resultCode = 200 }
         })
     }
 }

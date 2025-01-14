@@ -67,7 +67,7 @@ class WelcomeViewModel(val repository: WelcomeRepository, val pref :PreferencesI
                         _isGetShopListsError.value = when(shopLists.resultCode){
                             -1 -> "ERROR:No internet connection"
                             -3 -> "ERROR:Request timeout after 3 seconds"
-                            else ->""
+                            else ->"Unknown Error"
                         }
                     }
                 }

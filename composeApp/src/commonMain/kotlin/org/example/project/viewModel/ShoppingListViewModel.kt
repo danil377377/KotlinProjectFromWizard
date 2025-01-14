@@ -38,6 +38,8 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
                 is ShoppingListAction.QuantityInputChanged -> {
                 _insertedQuantity.update { action.quantity }
             }
+
+                is ShoppingListAction.CrossItem -> crossItem(action.itemId, action.listId)
             }
         }
     }
@@ -53,7 +55,7 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
                 _isGetItemsError.value = when (items.resultCode) {
                     -1 -> "ERROR:No internet connection"
                     -3 -> "ERROR:Request timeout after 3 seconds"
-                    else -> ""
+                    else -> "Unknown Error"
                 }
             }
             _isLoading.value = false
@@ -80,7 +82,7 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
                 _isGetItemsError.value = when (response.resultCode) {
                     -1 -> "ERROR:No internet connection"
                     -3 -> "ERROR:Request timeout after 3 seconds"
-                    else -> ""
+                    else -> "Unknown Error"
                 }
                 emit(emptyList())
             }
@@ -96,7 +98,7 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
                 _isGetItemsError.value = when (response.resultCode) {
                     -1 -> "ERROR:No internet connection"
                     -3 -> "ERROR:Request timeout after 3 seconds"
-                    else -> ""
+                    else -> "Unknown Error"
                 }
             }
             _isLoading.value = false
@@ -112,7 +114,23 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
                 _isGetItemsError.value = when (response.resultCode) {
                     -1 -> "ERROR:No internet connection"
                     -3 -> "ERROR:Request timeout after 3 seconds"
-                    else -> ""
+                    else -> "Unknown Error"
+                }
+            }
+            _isLoading.value = false
+            getItems(listId)
+        }
+    }
+
+    fun crossItem(itemId:String, listId: String){
+        viewModelScope.launch {
+            _isLoading.value=true
+            val response = repository.crossItem(itemId)
+            if(response.resultCode!= 200){
+                _isGetItemsError.value = when (response.resultCode) {
+                    -1 -> "ERROR:No internet connection"
+                    -3 -> "ERROR:Request timeout after 3 seconds"
+                    else -> "Unknown Error"
                 }
             }
             _isLoading.value = false

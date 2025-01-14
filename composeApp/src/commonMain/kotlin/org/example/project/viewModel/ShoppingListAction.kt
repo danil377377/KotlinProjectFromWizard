@@ -5,4 +5,5 @@ sealed class ShoppingListAction {
     data class QuantityInputChanged(val quantity: String) : ShoppingListAction()
     data class AddToShoppingList(val listId:String, val name:String, val n:String): ShoppingListAction()
     data class RemoveFromShoppingList(val listId:String, val itemId:String): ShoppingListAction()
+    data class CrossItem(val itemId:String,val listId:String): ShoppingListAction()
 }
