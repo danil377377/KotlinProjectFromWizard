@@ -31,8 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.example.project.viewModel.AllShopListsAction
-import org.example.project.viewModel.AllShopListsViewModel
 import org.example.project.viewModel.ShoppingListAction
 import org.example.project.viewModel.ShoppingListViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -46,7 +44,7 @@ fun ShoppingListScreen (listId:String, listName:String) {
     val nameInput = viewModel.insertedName.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
-    var chosenShoplist by remember { mutableStateOf("") }
+    var chosenItem by remember { mutableStateOf("") }
 
     val addButtonColors = ButtonDefaults.filledTonalButtonColors(
         containerColor = Color.Blue,
@@ -106,7 +104,7 @@ fun ShoppingListScreen (listId:String, listName:String) {
                         }
                         Row(Modifier.align(Alignment.CenterEnd)) {
                             FilledTonalButton(
-                                onClick = {chosenShoplist = it.id.toString()
+                                onClick = {chosenItem = it.id.toString()
                                     showDialog = true},
                                 colors = removeButtonColors
                             ) {
@@ -127,7 +125,7 @@ fun ShoppingListScreen (listId:String, listName:String) {
             text = { Text("Вы действительно хотите удалить список покупок?") },
             confirmButton = {
                 TextButton(onClick = {
-//                    viewModel.dispatch(AllShopListsAction.RemoveShoplist(chosenShoplist, key))
+                    viewModel.dispatch(ShoppingListAction.RemoveFromShoppingList(listId, chosenItem))
                     showDialog = false
                 }) {
                     Text("Удалить")

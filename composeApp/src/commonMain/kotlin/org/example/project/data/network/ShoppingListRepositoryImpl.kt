@@ -11,4 +11,8 @@ class ShoppingListRepositoryImpl(val dataSource: PurchasesDataSource):ShoppingLi
     override suspend fun addToShoppingList(listId: String,name: String, n:String): Response{
        return dataSource.addToShoppingList(listId,name,n)
     }
+
+    override suspend fun removeFromList(listId: String, itemId: String): Response {
+        return dataSource.removeFromList(listId, itemId)
+    }
 }

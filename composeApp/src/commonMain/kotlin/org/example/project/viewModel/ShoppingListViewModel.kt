@@ -32,6 +32,7 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
                     _insertedName.update { action.name }
                 }
                 is ShoppingListAction.AddToShoppingList -> addToShoplist(action.listId,action.name,action.n)
+                is ShoppingListAction.RemoveFromShoppingList -> removeFromShoplist(action.listId, action.itemId)
             }
         }
     }
@@ -97,4 +98,21 @@ class ShoppingListViewModel(val repository: ShoppingListRepository) : ViewModel(
             getItems(listId)
         }
     }
+
+    fun removeFromShoplist(listId:String, itemId:String){
+        viewModelScope.launch {
+            _isLoading.value = true
+            val response = repository.removeFromList(listId, itemId)
+            if (response.resultCode != 200) {
+                _isGetItemsError.value = when (response.resultCode) {
+                    -1 -> "ERROR:No internet connection"
+                    -3 -> "ERROR:Request timeout after 3 seconds"
+                    else -> ""
+                }
+            }
+            _isLoading.value = false
+            getItems(listId)
+        }
+    }
+
 }

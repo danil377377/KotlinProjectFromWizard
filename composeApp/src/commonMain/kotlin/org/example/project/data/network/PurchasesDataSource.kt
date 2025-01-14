@@ -9,4 +9,5 @@ interface PurchasesDataSource {
     suspend fun removeShoplist(id:String):Response
     suspend fun getShoppingList(listId: String): Response
     suspend fun addToShoppingList(listId: String,name: String, n:String): Response
+    suspend fun removeFromList(listId: String,itemId:String): Response
 }

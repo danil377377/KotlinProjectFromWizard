@@ -10,6 +10,7 @@ import org.example.project.data.network.model.AddToShoplistResponse
 import org.example.project.data.network.model.CreateShoplistsResponse
 import org.example.project.data.network.model.GenerateKeyResponse
 import org.example.project.data.network.model.GetAllShopListsResponse
+import org.example.project.data.network.model.RemoveFromListResponse
 import org.example.project.data.network.model.RemoveShoplistResponse
 import org.example.project.data.network.model.Response
 import org.example.project.data.network.model.ShoppingListResponse
@@ -66,6 +67,12 @@ class KtorClient : PurchasesDataSource {
         return safeApiCall({
             val response = httpClient.get("$BASE_URL/AddToShoppingList?id=$listId&value=$name&n=$n")
             response.body<AddToShoplistResponse>().apply { resultCode = 200 }
+        })
+    }
+    override suspend fun removeFromList(listId: String,itemId:String): Response {
+        return safeApiCall({
+            val response = httpClient.get("$BASE_URL/RemoveFromList?list_id=$listId&item_id=$itemId")
+            response.body<RemoveFromListResponse>().apply { resultCode = 200 }
         })
     }
 }
