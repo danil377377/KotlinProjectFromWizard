@@ -2,10 +2,10 @@ package org.example.project.data.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
+import org.example.project.data.Preferences.PlatformHttpClient
 import org.example.project.data.network.model.AddToShoplistResponse
 import org.example.project.data.network.model.CreateShoplistsResponse
 import org.example.project.data.network.model.CrossItemResponse
@@ -16,12 +16,8 @@ import org.example.project.data.network.model.RemoveShoplistResponse
 import org.example.project.data.network.model.Response
 import org.example.project.data.network.model.ShoppingListResponse
 
-class KtorClient : PurchasesDataSource {
-    private val httpClient = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-    }
+class KtorClient(client: PlatformHttpClient) : PurchasesDataSource {
+    private val httpClient = client.httpClient
     private val BASE_URL = "https://cyberprot.ru/shopping/v2"
 
     override suspend fun getAutentificationKey(): Response {
