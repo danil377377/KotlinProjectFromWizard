@@ -39,12 +39,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import org.example.project.viewModel.ShoppingListAction
 import org.example.project.viewModel.ShoppingListViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ShoppingListScreen(listId: String, listName: String) {
+fun ShoppingListScreen(listId: String, listName: String, navController: NavController) {
     val viewModel = koinViewModel<ShoppingListViewModel>()
     val items = viewModel.items.collectAsState()
     val isError = viewModel.isGetItemsError.collectAsState()
@@ -75,6 +76,12 @@ fun ShoppingListScreen(listId: String, listName: String) {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        FilledTonalButton(
+            {
+                navController.popBackStack()
+            },){
+            Text("Назад")
+        }
         Text(listName, fontSize = 25.sp, modifier = Modifier.padding(top = 32.dp))
         OutlinedTextField(
             value = nameInput.value,

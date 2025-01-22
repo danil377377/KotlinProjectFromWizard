@@ -31,7 +31,7 @@ fun App() {
                 composable(route = "shoppinglist/{listId}/{listName}"){stackEntry ->
                     val listId = stackEntry.arguments?.getString("listId")
                     val listName = stackEntry.arguments?.getString("listName")
-                    ShoppingListScreen(listId?:"Ошибка", listName?:"Ошибка")
+                    ShoppingListScreen(listId?:"Ошибка", listName?:"Ошибка", navController)
                 }
             }
         }

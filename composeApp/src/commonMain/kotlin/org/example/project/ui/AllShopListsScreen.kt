@@ -66,6 +66,12 @@ fun ShopListsScreen(key:String, navController: NavController) {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        FilledTonalButton(
+            {
+                navController.popBackStack()
+            },){
+            Text("Назад")
+        }
         Text("Ключ: $key", fontSize = 25.sp, modifier = Modifier.padding(top = 32.dp))
         OutlinedTextField(
             value = nameInput.value,
