@@ -1,6 +1,6 @@
 package org.example.project.data.di
 
-import org.example.project.data.Preferences.PreferencesApi
+
 import org.example.project.data.Preferences.PreferencesImpl
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf

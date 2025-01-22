@@ -26,8 +26,8 @@ class KtorClient : PurchasesDataSource {
 
     override suspend fun getAutentificationKey(): Response {
         return safeApiCall({
-            val response = httpClient.get("$BASE_URL/CreateTestKey?")
-            response.body<GenerateKeyResponse>().apply { resultCode = 200 }
+            val response = GenerateKeyResponse(httpClient.get("$BASE_URL/CreateTestKey?").body())
+            response.apply { resultCode = 200 }
         })
     }
 
